@@ -31,7 +31,6 @@ export async function GET() {
 
     return Response.json({
       valid: true,
-      url: blob.url,
       uploadedAt: blob.uploadedAt,
     });
   } catch (err) {

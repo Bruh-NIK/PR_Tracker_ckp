@@ -20,15 +20,15 @@ export async function POST(request) {
       );
     }
 
-    const blob = await put(BLOB_PATH, file, {
-      access: "public",
+    await put(BLOB_PATH, file, {
+      access: "private",
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType:
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    return Response.json({ url: blob.url, uploadedAt: new Date().toISOString() });
+    return Response.json({ uploadedAt: new Date().toISOString() });
   } catch (err) {
     console.error(err);
     return Response.json({ error: "Upload failed: " + err.message }, { status: 500 });

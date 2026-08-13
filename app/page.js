@@ -117,8 +117,9 @@ export default function Home() {
 
   const fileInputRef = useRef(null);
 
-  async function loadFromUrl(url, uploadedAtVal) {
-    const res = await fetch(url);
+  async function loadFile(uploadedAtVal) {
+    const res = await fetch("/api/download", { cache: "no-store" });
+    if (!res.ok) throw new Error("Could not load the stored file");
     const buf = await res.arrayBuffer();
     const wb = XLSX.read(buf, { type: "array" });
     const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -139,7 +140,7 @@ export default function Home() {
         const res = await fetch("/api/file");
         const data = await res.json();
         if (data.valid) {
-          await loadFromUrl(data.url, data.uploadedAt);
+          await loadFile(data.uploadedAt);
         } else {
           setScreen("upload");
         }
@@ -158,7 +159,7 @@ export default function Home() {
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
-      await loadFromUrl(data.url, data.uploadedAt);
+      await loadFile(data.uploadedAt);
     } catch (err) {
       setUploadError(err.message);
     } finally {
