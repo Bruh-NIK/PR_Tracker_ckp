@@ -19,10 +19,13 @@ function fmt(d) {
   )}:${p(d.getMinutes())}`;
 }
 
+// Column I = index 8 (A=0, B=1, C=2 ... I=8)
+const LAST_PR_COL_INDEX = 8;
+
 function findHeaderRow(rows) {
   for (let i = 0; i < Math.min(rows.length, 10); i++) {
     const row = rows[i].map((c) => String(c).toUpperCase());
-    if (row.some((c) => c.includes("LAST AVAILED PR DATE"))) return i;
+    if (row.some((c) => c.includes("CREW ID"))) return i;
   }
   return -1;
 }
@@ -31,7 +34,7 @@ function parseWorkbookRows(rows) {
   const headerIdx = findHeaderRow(rows);
   if (headerIdx === -1) {
     throw new Error(
-      'Could not find the "LAST AVAILED PR DATE" column in this file.'
+      'Could not find the header row (looking for a "CREW ID" column) in this file.'
     );
   }
   const headers = rows[headerIdx].map((h) => String(h).toUpperCase().trim());
@@ -42,7 +45,7 @@ function parseWorkbookRows(rows) {
     crewId: headers.findIndex((h) => h.includes("CREW ID")),
     crewName: headers.findIndex((h) => h.includes("CREW NAME")),
     desg: headers.findIndex((h) => h.includes("DESG")),
-    lastPR: headers.findIndex((h) => h.includes("LAST AVAILED PR DATE")),
+    lastPR: LAST_PR_COL_INDEX,
   };
 
   const now = new Date();
