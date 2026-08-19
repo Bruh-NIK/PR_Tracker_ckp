@@ -75,6 +75,7 @@ function parseWorkbookRows(rows) {
       availTime: null,
       nextDue: null,
       remaining: null,
+      daysElapsed: null,
       status: "na",
     };
 
@@ -82,13 +83,15 @@ function parseWorkbookRows(rows) {
       const hour = lastPRDate.getHours();
       const addHrs = hour >= 22 && hour <= 23 ? 32 : 30;
       const availTime = new Date(lastPRDate.getTime() + addHrs * 3600 * 1000);
-      const nextDue = new Date(availTime.getTime() + 6 * 24 * 3600 * 1000);
+      const nextDue = new Date(availTime.getTime() + 7 * 24 * 3600 * 1000);
       const remainingHrs = (nextDue.getTime() - now.getTime()) / 3600000;
+      const daysElapsed = (now.getTime() - lastPRDate.getTime()) / (24 * 3600 * 1000);
 
       entry.addHrs = addHrs;
       entry.availTime = availTime;
       entry.nextDue = nextDue;
       entry.remaining = remainingHrs;
+      entry.daysElapsed = daysElapsed;
       entry.status =
         remainingHrs < 0 ? "overdue" : remainingHrs <= 24 ? "soon" : "ok";
     }
@@ -289,6 +292,7 @@ export default function Home() {
     ["crewName", "Crew Name"],
     ["desg", "Desg."],
     ["lastPRraw", "Last Availed PR"],
+    ["daysElapsed", "Days Elapsed"],
     ["addHrs", "Hrs Added"],
     ["availTime", "Available Time"],
     ["nextDue", "Next PR Due"],
@@ -354,7 +358,7 @@ export default function Home() {
               <div className="rule-note">
                 Uses only the <strong>LAST AVAILED PR DATE</strong> column. If the
                 time falls between 22:00–23:59, Available Time = that date/time +
-                32 hours; otherwise + 30 hours. Next PR Due = Available Time + 6
+                32 hours; otherwise + 30 hours. Next PR Due = Available Time + 7
                 days. This file is shared — anyone visiting will see it, and it
                 automatically stops being valid once the date changes (IST), so a
                 new file must be uploaded each day.
@@ -431,6 +435,14 @@ export default function Home() {
                   <div className="rc-field">
                     <div className="fl">Last Availed PR</div>
                     <div className="fv">{selected.lastPRraw || "—"}</div>
+                  </div>
+                  <div className="rc-field">
+                    <div className="fl">Days Elapsed</div>
+                    <div className="fv">
+                      {selected.daysElapsed !== null
+                        ? selected.daysElapsed.toFixed(1) + " days"
+                        : "—"}
+                    </div>
                   </div>
                   <div className="rc-field">
                     <div className="fl">Available Time</div>
@@ -520,6 +532,11 @@ export default function Home() {
                           <td>{r.crewName}</td>
                           <td>{r.desg}</td>
                           <td>{r.lastPRraw || "-"}</td>
+                          <td>
+                            {r.daysElapsed !== null
+                              ? r.daysElapsed.toFixed(1)
+                              : "-"}
+                          </td>
                           <td>{r.addHrs !== null ? r.addHrs + " hrs" : "-"}</td>
                           <td>{fmt(r.availTime)}</td>
                           <td>{fmt(r.nextDue)}</td>
